@@ -7,13 +7,13 @@ import (
 )
 
 type RedeNeural struct {
-	Entrada               int
+	entrada               int
 	Escondida             int
 	Saida                 int
-	BiasEntradaParaOculta matriz.Matriz
-	BiasOcultaParaSaida   matriz.Matriz
-	PesoEntradaEscondida  matriz.Matriz
-	PesoEscondidaSaida    matriz.Matriz
+	biasEntradaParaOculta matriz.Matriz
+	biasOcultaParaSaida   matriz.Matriz
+	pesoEntradaEscondida  matriz.Matriz
+	pesoEscondidaSaida    matriz.Matriz
 	TaxaAprendizado       float64
 }
 
@@ -23,24 +23,24 @@ func sigmoidDerivada(x float64) float64 {
 
 func (r *RedeNeural) Inicia(entrada, escondida, saida int) {
 
-	r.Entrada = entrada
+	r.entrada = entrada
 	r.Escondida = escondida
 	r.Saida = saida
 
-	r.BiasEntradaParaOculta = matriz.Matriz{}
-	r.BiasOcultaParaSaida = matriz.Matriz{}
-	r.PesoEntradaEscondida = matriz.Matriz{}
-	r.PesoEntradaEscondida = matriz.Matriz{}
+	r.biasEntradaParaOculta = matriz.Matriz{}
+	r.biasOcultaParaSaida = matriz.Matriz{}
+	r.pesoEntradaEscondida = matriz.Matriz{}
+	r.pesoEntradaEscondida = matriz.Matriz{}
 
-	r.BiasEntradaParaOculta.Iniciar(escondida, 1)
-	r.BiasEntradaParaOculta.Randomizar()
-	r.BiasOcultaParaSaida.Iniciar(saida, 1)
-	r.BiasOcultaParaSaida.Randomizar()
+	r.biasEntradaParaOculta.Iniciar(escondida, 1)
+	r.biasEntradaParaOculta.Randomizar()
+	r.biasOcultaParaSaida.Iniciar(saida, 1)
+	r.biasOcultaParaSaida.Randomizar()
 
-	r.PesoEntradaEscondida.Iniciar(escondida, entrada)
-	r.PesoEntradaEscondida.Randomizar()
-	r.PesoEscondidaSaida.Iniciar(saida, escondida)
-	r.PesoEscondidaSaida.Randomizar()
+	r.pesoEntradaEscondida.Iniciar(escondida, entrada)
+	r.pesoEntradaEscondida.Randomizar()
+	r.pesoEscondidaSaida.Iniciar(saida, escondida)
+	r.pesoEscondidaSaida.Randomizar()
 
 	r.TaxaAprendizado = 0.1
 }
@@ -61,14 +61,14 @@ func (r *RedeNeural) feedForward(_entrada []float64) matriz.Matriz {
 
 	// camada de entrapa para a escondida
 	entrada := matriz.ArrayParaMatriz(_entrada)
-	escondida := matriz.Multiplicacao(r.PesoEntradaEscondida, entrada)
-	escondida = matriz.Soma(escondida, r.BiasEntradaParaOculta)
+	escondida := matriz.Multiplicacao(r.pesoEntradaEscondida, entrada)
+	escondida = matriz.Soma(escondida, r.biasEntradaParaOculta)
 	Ativacao(escondida)
 
 	// camada de escondida para saida
 
-	saida := matriz.Multiplicacao(r.PesoEscondidaSaida, escondida)
-	saida = matriz.Soma(saida, r.BiasOcultaParaSaida)
+	saida := matriz.Multiplicacao(r.pesoEscondidaSaida, escondida)
+	saida = matriz.Soma(saida, r.biasOcultaParaSaida)
 
 	Ativacao(saida)
 	return saida
@@ -78,14 +78,14 @@ func (r *RedeNeural) Treinar(arrayEntrada []float64, alvo []float64) {
 
 	// camada de entrapa para a escondida
 	entrada := matriz.ArrayParaMatriz(arrayEntrada)
-	escondida := matriz.Multiplicacao(r.PesoEntradaEscondida, entrada)
-	escondida = matriz.Soma(escondida, r.BiasEntradaParaOculta)
+	escondida := matriz.Multiplicacao(r.pesoEntradaEscondida, entrada)
+	escondida = matriz.Soma(escondida, r.biasEntradaParaOculta)
 	Ativacao(escondida)
 
 	// camada de escondida para saida
 
-	saida := matriz.Multiplicacao(r.PesoEscondidaSaida, escondida)
-	saida = matriz.Soma(saida, r.BiasOcultaParaSaida)
+	saida := matriz.Multiplicacao(r.pesoEscondidaSaida, escondida)
+	saida = matriz.Soma(saida, r.biasOcultaParaSaida)
 	Ativacao(saida)
 
 	// backpropagation
@@ -101,11 +101,11 @@ func (r *RedeNeural) Treinar(arrayEntrada []float64, alvo []float64) {
 	gradiente := matriz.Hadamard(derivadaSaida, erroSaida)
 	gradiente = matriz.MultiplicacaoEscalar(gradiente, r.TaxaAprendizado)
 
-	r.BiasOcultaParaSaida = matriz.Soma(r.BiasOcultaParaSaida, gradiente)
+	r.biasOcultaParaSaida = matriz.Soma(r.biasOcultaParaSaida, gradiente)
 	pesoEscondidaSaidaDelta := matriz.Multiplicacao(gradiente, escondidaTransposta)
-	r.PesoEscondidaSaida = matriz.Soma(r.PesoEscondidaSaida, pesoEscondidaSaidaDelta)
+	r.pesoEscondidaSaida = matriz.Soma(r.pesoEscondidaSaida, pesoEscondidaSaidaDelta)
 
-	pesoEscondidaSaidaTransposto := r.PesoEscondidaSaida.MatrizTransposta()
+	pesoEscondidaSaidaTransposto := r.pesoEscondidaSaida.MatrizTransposta()
 	erroEscondida := matriz.Multiplicacao(pesoEscondidaSaidaTransposto, erroSaida)
 	derivadaEscondida := matriz.Mapeia(escondida, func(escondida matriz.Matriz, linha, coluna int) float64 {
 		return sigmoidDerivada(escondida.Dados[linha][coluna])
@@ -115,10 +115,10 @@ func (r *RedeNeural) Treinar(arrayEntrada []float64, alvo []float64) {
 	gradienteEscondida = matriz.MultiplicacaoEscalar(gradienteEscondida, r.TaxaAprendizado)
 
 	// Adjust Bias O->H
-	r.BiasEntradaParaOculta = matriz.Soma(r.BiasEntradaParaOculta, gradienteEscondida)
+	r.biasEntradaParaOculta = matriz.Soma(r.biasEntradaParaOculta, gradienteEscondida)
 
 	pesoEntradaEscondidaDelta := matriz.Multiplicacao(gradienteEscondida, entradaTransposta)
-	r.PesoEntradaEscondida = matriz.Soma(r.PesoEntradaEscondida, pesoEntradaEscondidaDelta)
+	r.pesoEntradaEscondida = matriz.Soma(r.pesoEntradaEscondida, pesoEntradaEscondidaDelta)
 
 }
 
@@ -126,16 +126,16 @@ func (r *RedeNeural) Prever(arrayEntrada []float64) [][]float64 {
 	// entrada -> escondida
 	entrada := matriz.ArrayParaMatriz(arrayEntrada)
 
-	escondida := matriz.Multiplicacao(r.PesoEntradaEscondida, entrada)
-	escondida = matriz.Soma(escondida, r.BiasEntradaParaOculta)
+	escondida := matriz.Multiplicacao(r.pesoEntradaEscondida, entrada)
+	escondida = matriz.Soma(escondida, r.biasEntradaParaOculta)
 
 	escondida = matriz.Mapeia(escondida, func(saida matriz.Matriz, linha, coluna int) float64 {
 		return sigmoid(escondida.Dados[linha][coluna])
 	})
 
 	// escondida -> saida
-	saida := matriz.Multiplicacao(r.PesoEscondidaSaida, escondida)
-	saida = matriz.Soma(saida, r.BiasOcultaParaSaida)
+	saida := matriz.Multiplicacao(r.pesoEscondidaSaida, escondida)
+	saida = matriz.Soma(saida, r.biasOcultaParaSaida)
 	saida = matriz.Mapeia(saida, func(saida matriz.Matriz, linha, coluna int) float64 {
 		return sigmoid(saida.Dados[linha][coluna])
 	})
