@@ -7,21 +7,19 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/glaubergoncalves/go-rede-neural/rede"
+	rede "github.com/glaubergoncalves/go-rede-neural/rede"
 )
 
 func main() {
 
-	alvo, entradas := extraiDadosDoDataset()
-
-	redeNeural := rede.RedeNeural{}
-	redeNeural.Inicia(1, 6, 1)
-
+	alvo, entradas := extraiDadosDoDataset("./glaubergoncalves/go-rede-neural/exemplos/iris/Iris.csv")
+	redeNeural := rede.NewRedeNeural(1, 3, 1)
+	log.Println("treinando")
 	treinaRede(redeNeural, entradas, alvo, 10000)
+	log.Println("aprendizado concluido")
 
 	resultado := redeNeural.Prever(entradas[0])
-	fmt.Println("Deveria ser 1, Iris-setosa e foi : ", resultado)
-
+	fmt.Println("Deveria ser maior que 0.5 , Iris-setosa e foi : ", resultado)
 }
 
 func treinaRede(redeNeural rede.RedeNeural, entradas, alvo [][]float64, quantidade int) {
@@ -32,12 +30,12 @@ func treinaRede(redeNeural rede.RedeNeural, entradas, alvo [][]float64, quantida
 	}
 }
 
-func extraiDadosDoDataset() ([][]float64, [][]float64) {
+func extraiDadosDoDataset(path string) ([][]float64, [][]float64) {
 
 	entradas := [][]float64{}
 	alvo := [][]float64{}
 
-	csvfile, err := os.Open("./glaubergoncalves/go-rede-neural/exemplos/Iris.csv")
+	csvfile, err := os.Open(path)
 	if err != nil {
 		log.Fatalln("Couldn't open the csv file", err)
 	}

@@ -8,13 +8,19 @@ import (
 
 type RedeNeural struct {
 	entrada               int
-	Escondida             int
+	escondida             int
 	Saida                 int
 	biasEntradaParaOculta matriz.Matriz
 	biasOcultaParaSaida   matriz.Matriz
 	pesoEntradaEscondida  matriz.Matriz
 	pesoEscondidaSaida    matriz.Matriz
 	TaxaAprendizado       float64
+}
+
+func NewRedeNeural(entradas, ocultas, saidas int) RedeNeural {
+	r := RedeNeural{}
+	r.Inicia(entradas, ocultas, saidas)
+	return r
 }
 
 func sigmoidDerivada(x float64) float64 {
@@ -24,7 +30,7 @@ func sigmoidDerivada(x float64) float64 {
 func (r *RedeNeural) Inicia(entrada, escondida, saida int) {
 
 	r.entrada = entrada
-	r.Escondida = escondida
+	r.escondida = escondida
 	r.Saida = saida
 
 	r.biasEntradaParaOculta = matriz.Matriz{}
